@@ -1,18 +1,24 @@
-import { NextResponse } from 'next/server';
-import { sql } from '@vercel/postgres';
+import NextAuth from "next-auth";
+import GithubProvider from "next-auth/providers/github";
+import VercelPostgresAdapter from "@/lib/auth-adapter"; // Importando nosso arquivo manual
 
-export async function GET() {
-  try {
-    // sql
-    // mensagem de teste );
+const handler = NextAuth({
+  adapter: VercelPostgresAdapter(), // Usando o adaptador manual
+  providers: [
+    GithubProvider({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET,
+    }),
+  ],
+  secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async session({ session, user }) {
+      if (session.user) {
+        session.user.id = user.id; // Garante que o ID do usuário esteja na sessão
+      }
+      return session;
+    },
+  },
+});
 
-    await sql`INSERT INTO messages (content, role) VALUES ('Olá Banco de Dados!', 'user')`;
-    
-    
-    const result = await sql`SELECT * FROM messages`;
-    
-    return NextResponse.json({ result: result.rows });
-  } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
+export { handler as GET, handler as POST };
