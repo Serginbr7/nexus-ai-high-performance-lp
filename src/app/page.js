@@ -1,12 +1,17 @@
-"use client"; // 1. Obrigatório no topo para o botão funcionar
+"use client";
 
 import { MoveRight, CheckCircle2, Play } from "lucide-react";
-import { signIn } from "next-auth/react"; // 2. Importação movida para o lugar certo
+import { signIn } from "next-auth/react"; 
+import UserCard from "@/components/UserCard"; // Importação do crachá
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-100 selection:bg-purple-500/30 font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#020617] text-slate-100 selection:bg-purple-500/30 font-sans overflow-x-hidden relative">
       
+      {/* --- AQUI ESTÁ O CRACHÁ --- */}
+      {/* Ele flutua por cima de tudo quando você está logado */}
+      <UserCard />
+
       {/* --- BACKGROUND TECNOLÓGICO --- */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center"></div>
@@ -27,7 +32,7 @@ export default function Home() {
           <a href="#" className="hover:text-white transition-colors">Pricing</a>
         </div>
         
-        {/* --- BOTÃO DE LOGIN CORRIGIDO --- */}
+        {/* BOTÃO DE LOGIN (Pode manter ele aqui por enquanto) */}
         <button
           onClick={() => signIn()} 
           className="hidden md:flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-full text-sm font-bold transition-all border border-purple-500 shadow-[0_0_20px_-5px_rgba(147,51,234,0.5)] cursor-pointer"
