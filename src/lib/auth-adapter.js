@@ -10,19 +10,23 @@ export default function VercelPostgresAdapter() {
       return rows[0];
     },
     async getUser(id) {
-      const { rows } = await sql`SELECT * FROM users WHERE id = ${id}`;
-      return rows[0] || null;
+      try {
+        const { rows } = await sql`SELECT * FROM users WHERE id = ${id}`;
+        return rows[0];
+      } catch (e) { return null; }
     },
     async getUserByEmail(email) {
-      const { rows } = await sql`SELECT * FROM users WHERE email = ${email}`;
-      return rows[0] || null;
+      try {
+        const { rows } = await sql`SELECT * FROM users WHERE email = ${email}`;
+        return rows[0];
+      } catch (e) { return null; }
     },
     async getUserByAccount({ providerAccountId, provider }) {
       const { rows } = await sql`
         SELECT u.* FROM users u join accounts a on u.id = a."userId"
         WHERE a.provider_account_id = ${providerAccountId} 
         AND a.provider = ${provider}`;
-      return rows[0] || null;
+      return rows[0];
     },
     async linkAccount(account) {
       await sql`
@@ -36,9 +40,12 @@ export default function VercelPostgresAdapter() {
       return account;
     },
     async createSession({ sessionToken, userId, expires }) {
+      // FORÇAR A DATA PARA O FORMATO QUE O POSTGRES ACEITA
+      const expiresDate = new Date(expires).toISOString();
+      
       const { rows } = await sql`
         INSERT INTO sessions ("userId", session_token, expires) 
-        VALUES (${userId}, ${sessionToken}, ${expires}) 
+        VALUES (${userId}, ${sessionToken}, ${expiresDate}) 
         RETURNING id, session_token, "userId", expires`;
       return rows[0];
     },
@@ -46,13 +53,26 @@ export default function VercelPostgresAdapter() {
       const { rows } = await sql`
         SELECT s.*, u.* FROM sessions s JOIN users u ON s."userId" = u.id
         WHERE s.session_token = ${sessionToken}`;
+      
       if (!rows[0]) return null;
-      const { name, email, image, ...session } = rows[0];
-      return { session, user: { id: session.userId, name, email, image } };
+      
+      // Mapeamento manual para garantir que os campos batam
+      const data = rows[0];
+      return {
+        session: {
+          sessionToken: data.session_token,
+          userId: data.userId,
+          expires: new Date(data.expires)
+        },
+        user: {
+          id: data.userId,
+          name: data.name,
+          email: data.email,
+          image: data.image
+        }
+      };
     },
-    async updateSession({ sessionToken }) {
-      return null; 
-    },
+    async updateSession({ sessionToken }) { return null; },
     async deleteSession(sessionToken) {
       await sql`DELETE FROM sessions WHERE session_token = ${sessionToken}`;
     },
