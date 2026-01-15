@@ -2,7 +2,7 @@
 
 import { MoveRight, CheckCircle2, Play } from "lucide-react";
 import { signIn } from "next-auth/react"; 
-import UserCard from "../components/UserCard"; // <--- A correção está aqui
+import UserCard from "./UserCard";
 
 export default function Home() {
   return (
