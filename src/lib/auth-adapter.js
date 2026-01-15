@@ -40,14 +40,20 @@ export default function VercelPostgresAdapter() {
       return account;
     },
     async createSession({ sessionToken, userId, expires }) {
-      // FORÇAR A DATA PARA O FORMATO QUE O POSTGRES ACEITA
       const expiresDate = new Date(expires).toISOString();
       
       const { rows } = await sql`
         INSERT INTO sessions ("userId", session_token, expires) 
         VALUES (${userId}, ${sessionToken}, ${expiresDate}) 
         RETURNING id, session_token, "userId", expires`;
-      return rows[0];
+      
+      const session = rows[0];
+      // TRADUÇÃO MANUAL: O banco devolve com underline, o NextAuth quer camelCase
+      return {
+        sessionToken: session.session_token,
+        userId: session.userId,
+        expires: new Date(session.expires)
+      };
     },
     async getSessionAndUser(sessionToken) {
       const { rows } = await sql`
@@ -56,7 +62,6 @@ export default function VercelPostgresAdapter() {
       
       if (!rows[0]) return null;
       
-      // Mapeamento manual para garantir que os campos batam
       const data = rows[0];
       return {
         session: {
