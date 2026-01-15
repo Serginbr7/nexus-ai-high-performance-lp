@@ -5,34 +5,20 @@ import { useSession, signOut } from "next-auth/react";
 export default function UserCard() {
   const { data: session, status } = useSession();
 
-  if (status === "loading") {
-    return <p className="fixed top-4 right-4 text-white text-xs">Carregando...</p>;
-  }
-
-  if (status === "unauthenticated") {
-    return null;
-  }
+  console.log("Status do Login:", status); // Isso vai aparecer no F12 do navegador
 
   return (
-    <div className="fixed top-4 right-4 bg-gray-900/90 backdrop-blur border border-gray-700 p-3 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-in fade-in slide-in-from-top-4">
-      {session?.user?.image && (
-        <img 
-          src={session.user.image} 
-          alt="Avatar" 
-          className="w-10 h-10 rounded-full border border-purple-500"
-        />
+    <div className="fixed top-20 right-4 z-50 bg-slate-900 border border-purple-500 p-4 rounded-xl shadow-2xl text-white">
+      <p className="font-bold mb-2">Debug Status: <span className="text-yellow-400">{status}</span></p>
+      
+      {status === "authenticated" ? (
+        <div>
+          <p className="text-green-400">✅ Logado como: {session?.user?.name}</p>
+          <button onClick={() => signOut()} className="bg-red-500 px-2 py-1 rounded mt-2 text-xs">Sair</button>
+        </div>
+      ) : (
+        <p className="text-red-400">❌ Não logado (O cartão original estava escondido)</p>
       )}
-      <div className="flex flex-col">
-        <span className="text-white text-sm font-bold leading-none">
-          {session?.user?.name?.split(" ")[0]}
-        </span>
-        <button 
-          onClick={() => signOut()}
-          className="text-xs text-red-400 hover:text-red-300 text-left mt-1 hover:underline"
-        >
-          Sair
-        </button>
-      </div>
     </div>
   );
 }
