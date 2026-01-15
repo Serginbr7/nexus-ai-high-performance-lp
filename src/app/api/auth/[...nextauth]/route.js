@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
-import VercelPostgresAdapter from "@/lib/auth-adapter"; // Importa o arquivo da pasta lib
+import VercelPostgresAdapter from "../../../../lib/auth-adapter"; // Importa o arquivo da pasta lib
 
 const handler = NextAuth({
   adapter: VercelPostgresAdapter(), // <--- AQUI ESTÁ A MÁGICA: Conecta ao banco

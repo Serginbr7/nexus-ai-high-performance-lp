@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
-import VercelPostgresAdapter from "@/lib/auth-adapter"; // Importando nosso arquivo manual
+import VercelPostgresAdapter from "../../../lib/auth-adapter"; // Importando nosso arquivo manual
 
 const handler = NextAuth({
   adapter: VercelPostgresAdapter(), // Usando o adaptador manual
